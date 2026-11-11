@@ -425,6 +425,24 @@
   .loan-msg{margin:0;min-height:20px;text-align:center;font-size:12px;color:#80edbd;line-height:1.5}
   .loan-footnote{margin:0;font-size:11px;line-height:1.5;color:#cdbbdc}
   @media(max-width:400px){.loan-card{padding:15px}.loan-choices{gap:4px}.loan-choice{padding:10px 1px;font-size:10px}.loan-status{gap:6px}}
+
+  /* Arcade Games: full-width link below all five casino game panels */
+  .arcade-banner{display:flex;align-items:center;gap:15px;width:100%;min-height:105px;margin:15px 0 6px;padding:18px 20px;
+    border-radius:21px;text-decoration:none;color:#fff;border:1px solid rgba(245,197,66,.55);
+    background:radial-gradient(circle at 90% 14%,rgba(255,198,61,.22),transparent 49%),
+      linear-gradient(112deg,#49245e 0%,#292049 60%,#182947 100%);
+    box-shadow:0 10px 35px rgba(0,0,0,.32),inset 0 1px rgba(255,255,255,.09);transition:transform .17s,border-color .17s,box-shadow .17s;}
+  .arcade-banner:hover{transform:translateY(-2px);border-color:#ffdf83;box-shadow:0 13px 38px rgba(0,0,0,.4),0 0 19px rgba(245,197,66,.16)}
+  .arcade-banner:focus-visible{outline:3px solid #fff;outline-offset:4px}
+  .arcade-banner-symbol{width:67px;height:67px;flex-shrink:0;display:grid;place-items:center;border-radius:17px;
+    background:linear-gradient(145deg,rgba(255,241,175,.16),rgba(164,105,249,.21));border:1px solid rgba(255,239,177,.3);font-size:38px}
+  .arcade-banner-copy{display:grid;gap:3px;flex:1;min-width:0}
+  .arcade-banner-kicker{font-size:9px;font-weight:900;letter-spacing:.21em;color:#f1c75e}
+  .arcade-banner-copy strong{font-size:clamp(19px,5vw,26px);font-weight:950;letter-spacing:.035em;line-height:1.16}
+  .arcade-banner-copy small{font-size:11px;line-height:1.35;color:#dfd2ef}
+  .arcade-banner-arrow{font-size:36px;line-height:1;color:#ffe4a0;font-weight:900}
+  @media(max-width:390px){.arcade-banner{gap:10px;padding:13px 12px;min-height:92px}.arcade-banner-symbol{width:55px;height:55px;font-size:29px}.arcade-banner-kicker{font-size:8px;letter-spacing:.12em}.arcade-banner-copy small{font-size:10px}}
+  @media(prefers-reduced-motion:reduce){.arcade-banner{transition:none}.arcade-banner:hover{transform:none}}
 </style>
 </head>
 <body>
@@ -458,7 +476,6 @@
     <button class="tab" data-game="poker" role="tab">🃏 Video Poker</button>
     <button class="tab" data-game="baccarat" role="tab">🎴 Baccarat</button>
     <button class="tab" data-game="roulette" role="tab">🎡 Roulette</button>
-    <a class="tab" href="skill-arcade.html" aria-label="Open Lucky Reels Skill Arcade" style="text-decoration:none;display:inline-flex;align-items:center;justify-content:center">🕹️ Skill Arcade</a>
   </nav>
 
   <!-- ================= SLOTS ================= -->
@@ -615,6 +632,17 @@
       </details>
     </div>
   </section>
+
+  <!-- Arcade destination below the casino games -->
+  <a class="arcade-banner" href="skill-arcade.html" aria-label="Open Arcade Games — four free skill challenges">
+    <span class="arcade-banner-symbol" aria-hidden="true">🕹️</span>
+    <span class="arcade-banner-copy">
+      <span class="arcade-banner-kicker">STEP INSIDE THE ARCADE</span>
+      <strong>ARCADE GAMES</strong>
+      <small>Matching • Memory • Speed • Reaction</small>
+    </span>
+    <span class="arcade-banner-arrow" aria-hidden="true">›</span>
+  </a>
 </div>
 
 <dialog class="loan-dialog" id="loanDialog" aria-labelledby="loanTitle">
