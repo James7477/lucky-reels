@@ -1,0 +1,52 @@
+name: Check Lucky Reels Skill Arcade
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'skill-arcade.*'
+      - '.github/workflows/arcade-check.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Lucky Reels
+        uses: actions/checkout@v4
+      - name: Check JavaScript syntax
+        run: node --check skill-arcade.js
+      - name: Check arcade links, controls and game sections
+        shell: bash
+        run: |
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          import assert from 'node:assert/strict';
+          const casino=fs.readFileSync('index.html','utf8');
+          const page=fs.readFileSync('skill-arcade.html','utf8');
+          const script=fs.readFileSync('skill-arcade.js','utf8');
+          const css=fs.readFileSync('skill-arcade.css','utf8');
+          assert.match(casino,/href="skill-arcade\.html"/);
+          assert.match(casino,/document\.querySelectorAll\("\.tab\[data-game\]"\)/);
+          assert.match(page,/src="skill-arcade\.js"/);
+          assert.match(page,/href="skill-arcade\.css"/);
+          for(const key of ['twins','memory','speed','reaction']){
+            assert.match(page,new RegExp('id="panel-'+key+'"'));
+            assert.match(page,new RegExp('data-mode="'+key+'"'));
+            assert.match(script,new RegExp('function reset'+key[0].toUpperCase()+key.slice(1)+'\\('));
+          }
+          for(const id of ['twinBoard','memoryBoard','speedBoard','reactionZone','startTwins','startMemory','startSpeed','startReaction','clearScores','soundBtn']){
+            assert.ok(page.includes('id="'+id+'"'),'Missing arcade control: '+id);
+          }
+          for(const existing of ['slots','blackjack','poker','baccarat','roulette']){
+            assert.ok(casino.includes('data-game="'+existing+'"'),'Original casino game removed: '+existing);
+          }
+          assert.ok(script.includes('luckyReelsSkillArcadeV1'));
+          assert.ok(!script.includes('luckyCasinoV1'),'Arcade must not modify casino balance storage');
+          assert.ok(css.length>1000,'Arcade styling missing');
+          console.log('All four arcade panels and five original games found; separate score storage verified.');
+          NODE
