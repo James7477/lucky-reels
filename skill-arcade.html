@@ -7,6 +7,11 @@
 <meta name="description" content="Lucky Reels Skill Arcade: six free games of memory, matching, reaction, speed and space action. Play for points, not money.">
 <title>Skill Arcade — Lucky Reels</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🕹️</text></svg>">
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Lucky Reels">
 <link rel="stylesheet" href="skill-arcade.css">
 <script src="skill-arcade.js" defer></script>
 </head>
@@ -76,5 +81,9 @@
 
   <footer class="foot"><span>🏆 Personal bests saved on this device only</span><span>No bets. No cash prizes. Just skill.</span><button type="button" id="clearScores" class="reset">Clear arcade records</button><a href="index.html">← Back to Lucky Reels Casino</a></footer>
 </div>
+<script>
+/* Offline + installable after the first visit. */
+if ("serviceWorker" in navigator) window.addEventListener("load", () => navigator.serviceWorker.register("/sw.js").catch(() => {}));
+</script>
 </body>
 </html>

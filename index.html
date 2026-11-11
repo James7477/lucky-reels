@@ -443,7 +443,17 @@
   .arcade-banner-arrow{font-size:36px;line-height:1;color:#ffe4a0;font-weight:900}
   @media(max-width:390px){.arcade-banner{gap:10px;padding:13px 12px;min-height:92px}.arcade-banner-symbol{width:55px;height:55px;font-size:29px}.arcade-banner-kicker{font-size:8px;letter-spacing:.12em}.arcade-banner-copy small{font-size:10px}}
   @media(prefers-reduced-motion:reduce){.arcade-banner{transition:none}.arcade-banner:hover{transform:none}}
+  .icon-btn[hidden]{display:none !important}
 </style>
+<meta name="description" content="Five play-money casino games and six skill and space arcade games. Install it to your home screen and it works offline." />
+<meta name="theme-color" content="#0c0714" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Lucky Reels" />
+<link rel="manifest" href="/manifest.json" />
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+<link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png" />
 </head>
 <body>
 <div class="wrap">
@@ -459,6 +469,7 @@
       <button class="icon-btn" id="soundBtn" title="Toggle sound">🔊</button>
       <button class="icon-btn loan-top-btn" id="loanBtn" type="button" title="Take a play-credit loan" aria-label="Take a play-credit loan">Take a Loan</button>
       <button class="icon-btn" id="clearBests" title="Clear all best wins">🏆</button>
+      <button class="icon-btn" id="installBtn" title="Install on this phone" aria-label="Install on this phone" hidden>📲</button>
     </div>
   </header>
 
@@ -2049,6 +2060,62 @@
   renderBests();
   renderDaily();
   updateHeader();
+})();
+</script>
+
+<script>
+/* Home-screen install + offline support. Kept separate from the game code above. */
+(() => {
+  const btn = document.getElementById("installBtn");
+  const toastEl = document.getElementById("toast");
+  const standalone =
+    window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  let deferredPrompt = null;
+
+  const tip = (message) => {
+    if (!toastEl) return;
+    toastEl.textContent = message;
+    toastEl.classList.add("show");
+    clearTimeout(tip._timer);
+    tip._timer = setTimeout(() => toastEl.classList.remove("show"), 4600);
+  };
+
+  window.addEventListener("beforeinstallprompt", (event) => {
+    event.preventDefault();
+    deferredPrompt = event;
+    if (btn && !standalone) btn.hidden = false;
+  });
+
+  if (btn && !standalone && isIOS) btn.hidden = false;
+
+  if (btn) {
+    btn.addEventListener("click", async () => {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        try {
+          await deferredPrompt.userChoice;
+        } catch (error) {
+          /* the browser dismissed the sheet */
+        }
+        deferredPrompt = null;
+        btn.hidden = true;
+        return;
+      }
+      tip(isIOS ? "Tap Share, then \u201cAdd to Home Screen\u201d" : "Open the browser menu and pick \u201cInstall app\u201d");
+    });
+  }
+
+  window.addEventListener("appinstalled", () => {
+    if (btn) btn.hidden = true;
+    tip("Installed \u2014 open it from your home screen");
+  });
+
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("/sw.js").catch(() => {});
+    });
+  }
 })();
 </script>
 </body>

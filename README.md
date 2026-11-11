@@ -17,13 +17,27 @@ python3 -m http.server 3000
 
 | File | Purpose |
 | --- | --- |
-| `index.html` | The whole app: markup, styles and game logic in one self-contained file |
+| `index.html` | The casino app: markup, styles and game logic in one self-contained file |
+| `skill-arcade.html` + `.css` / `.js` | Six skill games (Twin Finder, Memory Flip, Speed Tap, Reaction Lab, Asteroid Run, Galaxy Defender) |
+| `space-arcade.html` + `.css` / `.js` | The two space shooters as a full-screen phone experience |
+| `manifest.json` | Home-screen app metadata (name, icons, standalone display) |
+| `sw.js` | Service worker that caches every page and asset for offline play |
+| `icons/` | Home-screen icons, including an Android maskable icon and an Apple touch icon |
 
 Notes on how it works:
 
 - **No network calls.** The page loads no scripts, fonts, images or analytics from anywhere; the favicon is an inline SVG and all audio is synthesised with the Web Audio API.
 - **Progress is saved locally** in `localStorage`, so your balance and best results survive a refresh. Nothing is sent to a server.
 - **Fake credits only.** There is no payment, sign-up or server component of any kind.
+
+## Install it on your phone
+
+Open the live URL on your phone and add it to your home screen. It then launches full-screen like an app, and a service worker (`sw.js`) keeps the casino, the Skill Arcade and both space games playable with no connection.
+
+- **Android / Chrome / Edge:** tap the 📲 button in the casino header, or menu → *Install app*.
+- **iPhone / iPad (Safari):** tap the 📲 button, or Share → *Add to Home Screen*.
+
+Everything stays on the device — the installed app reads and writes the same local storage as the browser page, and nothing is uploaded.
 
 ## Live site
 
