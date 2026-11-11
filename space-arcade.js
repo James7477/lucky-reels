@@ -74,11 +74,28 @@ function pauseGame(){
  overlay("⏸️","PAUSED","Your mission is paused. Resume whenever you're ready.","▶ RESUME GAME");status("Paused");
 }
 function resumeGame(){paused=false;document.body.classList.add("game-active");$("launchBar").hidden=true;last=performance.now();$("pauseBtn").textContent="Pause";hideOverlay();canvas.focus({preventScroll:true});status("Mission resumed!");}
+function safeAsteroidSpawn(){
+ const spots=[
+  [W/2,H*.73],[W*.2,H*.8],[W*.8,H*.8],
+  [W*.2,H*.3],[W*.8,H*.3],[W/2,H*.42],
+  [W*.15,H*.55],[W*.85,H*.55]
+ ];
+ let best=spots[0],clearance=-Infinity;
+ for(const p of spots){
+  const nearest=rocks.length?Math.min(...rocks.map(r=>Math.hypot(p[0]-r.x,p[1]-r.y)-r.r)):Infinity;
+  if(nearest>clearance){best=p;clearance=nearest;}
+ }
+ return best;
+}
 function loseLife(){
  if(ship.invuln>0||!running)return;
  data.lives--;screenFlash=.35;burst(ship.x,ship.y,"#ff7d9d",27,210);sound(165,.3,"triangle",.05);updateHUD();
  if(data.lives<=0){endGame();return;}
- ship.x=W/2;ship.y=game==="asteroids"?H*.73:H-140;ship.vx=0;ship.vy=0;ship.invuln=game==="asteroids"?8:2.6;status(data.lives+" lives left — keep fighting!");
+ if(game==="asteroids"){
+  const [x,y]=safeAsteroidSpawn();ship.x=x;ship.y=y;
+ }else{ship.x=W/2;ship.y=H-140;}
+ ship.vx=0;ship.vy=0;ship.invuln=game==="asteroids"?8:2.6;
+ status(data.lives+" lives left — keep fighting!");
 }
 function fire(){
  if(!running||paused||shootCooldown>0)return;
