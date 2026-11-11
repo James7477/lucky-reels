@@ -14,3 +14,28 @@ button,a{font:inherit}button{cursor:pointer;touch-action:none;-webkit-tap-highli
 @media(max-width:430px){.hero{padding:17px 14px}.game{padding:10px}.identity strong{font-size:12px}.identity small{font-size:8px}.identity>span{font-size:22px}.back{padding:9px;font-size:11px}.mode{min-height:75px;padding:9px;gap:8px}.mode>span{font-size:24px}.mode strong{font-size:12px}.mode small{font-size:9px}.ctrl{min-height:65px;font-size:23px}.score-row small{font-size:8px;letter-spacing:.06em}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important}}
 .ctrl[hidden]{display:none!important}.galaxy-controls{grid-template-columns:repeat(3,minmax(0,1fr))}
+
+
+/* V1.1 — mobile start-screen visibility repair.  Avoid clipping the START button
+   in short Samsung/Chrome viewports, including landscape browser chrome. */
+.quick-start{display:block;margin:13px 0 0;min-height:48px;padding:11px 16px;font-size:14px}
+.game{scroll-margin-top:8px}
+.overlay{overflow-y:auto;overscroll-behavior:contain;display:flex;align-items:center;justify-content:center;padding:12px}
+.overlay-card{flex:0 0 auto;margin:auto 0;max-width:min(100%,370px)}
+@media(max-width:600px){
+  .screen-wrap{aspect-ratio:auto;height:clamp(395px,64svh,610px);max-height:none;min-height:395px}
+  .overlay{padding:10px}
+  .overlay-card{padding:15px 13px;border-radius:17px}
+  .overlay-icon{font-size:39px;line-height:1.1}
+  .overlay h2{font-size:22px;margin:5px 0}
+  .overlay p{font-size:12px;line-height:1.4;margin:7px 0 12px}
+  .overlay .primary{min-height:48px;padding:12px}
+  .hero p{margin-bottom:10px}
+}
+@media(max-height:580px){
+  .screen-wrap{min-height:345px;height:345px;max-height:none}
+  .overlay-card{padding:11px}
+  .overlay-icon{font-size:30px}
+  .overlay h2{font-size:20px}
+  .overlay p{margin:5px 0 10px}
+}
