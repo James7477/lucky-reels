@@ -12,3 +12,6 @@ Thumbs.db
 
 # Dependencies (none today, ignored in case tooling is added)
 node_modules/
+
+# local deployment scaffolding (Freebuff Sites), not part of the project
+/deploy/
