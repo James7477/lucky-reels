@@ -25,9 +25,12 @@ Notes on how it works:
 - **Progress is saved locally** in `localStorage`, so your balance and best results survive a refresh. Nothing is sent to a server.
 - **Fake credits only.** There is no payment, sign-up or server component of any kind.
 
-## Live preview
+## Live site
 
-Deployed with Freebuff Sites: <https://site-92e92b74e1624278b31dd6e22fe42e5a.freebuff.page>
+Deployed with Freebuff Sites:
+
+- Production: <https://site-4d8146c817884b8e961f57f3cf1d5943.freebuff.page>
+- Preview: <https://site-92e92b74e1624278b31dd6e22fe42e5a.freebuff.page>
 
 ## License
 
