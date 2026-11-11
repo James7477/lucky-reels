@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#120c22">
+<meta name="description" content="Lucky Reels Skill Arcade: four free games of memory, matching, reaction, and speed. Play for points, not money.">
+<title>Skill Arcade — Lucky Reels</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🕹️</text></svg>">
+<link rel="stylesheet" href="skill-arcade.css">
+<script src="skill-arcade.js" defer></script>
+</head>
+<body>
+<div class="shell">
+  <header class="top">
+    <a class="back" href="index.html" aria-label="Return to Lucky Reels">← Casino</a>
+    <div class="identity"><span class="ident-icon" aria-hidden="true">🕹️</span><span><small>LUCKY REELS</small><strong>SKILL ARCADE</strong></span></div>
+    <button id="soundBtn" class="round" type="button" aria-label="Toggle arcade sound" aria-pressed="true">🔊</button>
+  </header>
+
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="hero-top"><span class="eyebrow">RETRO ARCADE · NO WAGERS</span><span class="live"><i></i> FREE PLAY</span></div>
+    <h1 id="hero-title">How sharp are <em>your skills?</em></h1>
+    <p>Match the twins, remember the cards, hit the lights and test your reflexes. Beat your personal best!</p>
+    <div class="hero-stats"><span>🎮 <b>4</b> Games</span><span>🏆 Local high scores</span><span>💯 Points only</span></div>
+  </section>
+
+  <nav class="game-menu" aria-label="Choose an arcade game">
+    <button class="mode-tile active" data-mode="twins" type="button" aria-pressed="true"><span class="tile-icon">👀</span><strong>Twin Finder</strong><small>Pick the same two</small><span class="tile-best">Best <b id="bestTwins">0</b></span></button>
+    <button class="mode-tile" data-mode="memory" type="button" aria-pressed="false"><span class="tile-icon">🧠</span><strong>Memory Flip</strong><small>Match all 8 pairs</small><span class="tile-best">Best <b id="bestMemory">0</b></span></button>
+    <button class="mode-tile" data-mode="speed" type="button" aria-pressed="false"><span class="tile-icon">⚡</span><strong>Speed Tap</strong><small>Tap the glowing target</small><span class="tile-best">Best <b id="bestSpeed">0</b></span></button>
+    <button class="mode-tile" data-mode="reaction" type="button" aria-pressed="false"><span class="tile-icon">🚦</span><strong>Reaction Lab</strong><small>Test your reflexes</small><span class="tile-best">Fastest <b id="bestReaction">—</b></span></button>
+  </nav>
+
+  <main class="arena" id="arena">
+    <section class="game-panel" id="panel-twins" aria-labelledby="twins-title">
+      <div class="panel-head"><span class="panel-emoji">👀</span><div><h2 id="twins-title">Twin Finder</h2><p>Only TWO symbols are exactly alike. Find them as many times as you can in 45 seconds.</p></div></div>
+      <div class="score-row"><div><small>POINTS</small><strong id="twinScore">0</strong></div><div><small>TIME LEFT</small><strong id="twinTime">45s</strong></div><div><small>STREAK</small><strong id="twinStreak">0</strong></div></div>
+      <div id="twinBoard" class="symbol-grid" aria-label="Find the identical symbols"></div>
+      <p class="message" id="twinMsg" role="status" aria-live="polite">Press Start to find the matching pair!</p>
+      <button class="play-btn" id="startTwins" type="button">▶ Start Twin Finder</button>
+    </section>
+
+    <section class="game-panel" id="panel-memory" aria-labelledby="memory-title" hidden>
+      <div class="panel-head"><span class="panel-emoji">🧠</span><div><h2 id="memory-title">Memory Flip</h2><p>Flip two tiles at a time. Remember where the matching symbols hide.</p></div></div>
+      <div class="score-row"><div><small>PAIRS</small><strong id="memPairs">0 / 8</strong></div><div><small>MOVES</small><strong id="memMoves">0</strong></div><div><small>TIME</small><strong id="memTime">0s</strong></div></div>
+      <div id="memoryBoard" class="memory-grid" aria-label="Memory card grid"></div>
+      <p class="message" id="memMsg" role="status" aria-live="polite">Can you find all eight pairs?</p>
+      <button class="play-btn" id="startMemory" type="button">▶ Start Memory Flip</button>
+    </section>
+
+    <section class="game-panel" id="panel-speed" aria-labelledby="speed-title" hidden>
+      <div class="panel-head"><span class="panel-emoji">⚡</span><div><h2 id="speed-title">Speed Tap</h2><p>Tap only the glowing star. It moves after every hit. You have 30 seconds!</p></div></div>
+      <div class="score-row"><div><small>POINTS</small><strong id="speedScore">0</strong></div><div><small>TIME LEFT</small><strong id="speedTime">30s</strong></div><div><small>COMBO</small><strong id="speedCombo">0</strong></div></div>
+      <div id="speedBoard" class="speed-grid" aria-label="Tap the glowing star"></div>
+      <p class="message" id="speedMsg" role="status" aria-live="polite">Ready to test your aim and speed?</p>
+      <button class="play-btn" id="startSpeed" type="button">▶ Start Speed Tap</button>
+    </section>
+
+    <section class="game-panel" id="panel-reaction" aria-labelledby="reaction-title" hidden>
+      <div class="panel-head"><span class="panel-emoji">🚦</span><div><h2 id="reaction-title">Reaction Lab</h2><p>Wait for the signal to turn green, then tap as quickly as possible. No jumping the gun!</p></div></div>
+      <div class="score-row"><div><small>ROUND</small><strong id="reactionRound">0 / 5</strong></div><div><small>LAST</small><strong id="reactionLast">—</strong></div><div><small>BEST</small><strong id="reactionFastest">—</strong></div></div>
+      <button class="reaction-zone" id="reactionZone" type="button" disabled><span id="reactionIcon">🚦</span><strong id="reactionText">Start your reaction test</strong><small id="reactionHint">Wait for green before tapping</small></button>
+      <p class="message" id="reactionMsg" role="status" aria-live="polite">Five rounds. Fastest valid tap wins.</p>
+      <button class="play-btn" id="startReaction" type="button">▶ Start Reaction Lab</button>
+    </section>
+  </main>
+
+  <footer class="foot"><span>🏆 Personal bests saved on this device only</span><span>No bets. No cash prizes. Just skill.</span><button type="button" id="clearScores" class="reset">Clear arcade records</button><a href="index.html">← Back to Lucky Reels Casino</a></footer>
+</div>
+</body>
+</html>
