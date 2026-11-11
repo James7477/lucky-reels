@@ -6,6 +6,7 @@ on:
     paths:
       - 'index.html'
       - 'skill-arcade.*'
+      - 'space-arcade.*'
       - '.github/workflows/arcade-check.yml'
   workflow_dispatch:
 
@@ -19,7 +20,9 @@ jobs:
       - name: Checkout Lucky Reels
         uses: actions/checkout@v4
       - name: Check JavaScript syntax
-        run: node --check skill-arcade.js
+        run: |
+          node --check skill-arcade.js
+          node --check space-arcade.js
       - name: Check arcade links, controls and game sections
         shell: bash
         run: |
@@ -30,6 +33,9 @@ jobs:
           const page=fs.readFileSync('skill-arcade.html','utf8');
           const script=fs.readFileSync('skill-arcade.js','utf8');
           const css=fs.readFileSync('skill-arcade.css','utf8');
+          const spacePage=fs.readFileSync('space-arcade.html','utf8');
+          const spaceScript=fs.readFileSync('space-arcade.js','utf8');
+          const spaceCss=fs.readFileSync('space-arcade.css','utf8');
           assert.match(casino,/href="skill-arcade\.html"/);
           assert.match(casino,/document\.querySelectorAll\("\.tab\[data-game\]"\)/);
           assert.match(page,/src="skill-arcade\.js"/);
@@ -48,5 +54,18 @@ jobs:
           assert.ok(script.includes('luckyReelsSkillArcadeV1'));
           assert.ok(!script.includes('luckyCasinoV1'),'Arcade must not modify casino balance storage');
           assert.ok(css.length>1000,'Arcade styling missing');
-          console.log('All four arcade panels and five original games found; separate score storage verified.');
+          for(const game of ['asteroids','galaxy']){
+            assert.ok(page.includes('space-arcade.html?game='+game),'Missing '+game+' link');
+            assert.ok(spaceScript.includes('function '+(game==='asteroids'?'updateAsteroids':'updateGalaxy')+'('),'Missing '+game+' loop');
+          }
+          for(const id of ['screen','startBtn','pauseBtn','score','best','wave','lives','asteroidsMode','galaxyMode']){
+            assert.ok(spacePage.includes('id="'+id+'"'),'Missing Space Arcade control: '+id);
+          }
+          for(const key of ['left','right','thrust','fire']){
+            assert.ok(spacePage.includes('data-control="'+key+'"'),'Missing space touch control: '+key);
+          }
+          assert.ok(spaceScript.includes('luckyReelsSpaceArcadeV1'));
+          assert.ok(!spaceScript.includes('luckyCasinoV1'),'Space Arcade must not modify casino balance');
+          assert.ok(spaceCss.length>1000,'Space Arcade styling missing');
+          console.log('All six arcade games and five original casino games found; separate score storage verified.');
           NODE
