@@ -59,6 +59,7 @@
   }
   .icon-btn:hover:not(:disabled){background:rgba(255,255,255,.12)}
   .icon-btn:disabled{opacity:.3;cursor:not-allowed}
+  .loan-top-btn{font-size:12px;font-weight:850;white-space:nowrap;color:var(--gold);padding:10px 12px;letter-spacing:.01em}
   .icon-btn.ready{
     border-color:var(--gold);color:var(--gold);
     box-shadow:0 0 16px rgba(245,197,66,.45);
@@ -438,7 +439,7 @@
       </div>
       <button class="icon-btn" id="dailyBtn" title="Daily bonus">🎁</button>
       <button class="icon-btn" id="soundBtn" title="Toggle sound">🔊</button>
-      <button class="icon-btn" id="loanBtn" title="Take a play-credit loan" aria-label="Take a play-credit loan">🏦</button>
+      <button class="icon-btn loan-top-btn" id="loanBtn" type="button" title="Take a play-credit loan" aria-label="Take a play-credit loan">Take a Loan</button>
       <button class="icon-btn" id="clearBests" title="Clear all best wins">🏆</button>
     </div>
   </header>
