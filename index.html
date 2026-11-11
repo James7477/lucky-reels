@@ -421,6 +421,7 @@
     <button class="tab" data-game="poker" role="tab">🃏 Video Poker</button>
     <button class="tab" data-game="baccarat" role="tab">🎴 Baccarat</button>
     <button class="tab" data-game="roulette" role="tab">🎡 Roulette</button>
+    <a class="tab" href="skill-arcade.html" aria-label="Open Lucky Reels Skill Arcade" style="text-decoration:none;display:inline-flex;align-items:center;justify-content:center">🕹️ Skill Arcade</a>
   </nav>
 
   <!-- ================= SLOTS ================= -->
@@ -799,7 +800,7 @@
   };
 
   /* ================= tabs ================= */
-  const tabs = [...document.querySelectorAll(".tab")];
+  const tabs = [...document.querySelectorAll(".tab[data-game]")];
   const showGame = (name) => {
     state.game = name;
     tabs.forEach((t) => t.classList.toggle("active", t.dataset.game === name));
