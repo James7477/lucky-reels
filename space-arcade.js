@@ -22,7 +22,7 @@ function overlay(icon,title,text,button){$("overlayIcon").textContent=icon;$("ov
 function hideOverlay(){$("overlay").hidden=true;}
 function resetWorld(){
  document.body.classList.remove("game-active");
- running=false;paused=false;clearControls();data={score:0,lives:game==="asteroids"?6:3,wave:1};shots=[];rocks=[];enemyShots=[];enemies=[];particles=[];ship={x:W/2,y:H*.75,vx:0,vy:0,angle:-Math.PI/2,invuln:0};enemyDir=1;enemyFire=1;shootCooldown=0;screenFlash=0;
+ running=false;paused=false;clearControls();data={score:0,lives:game==="asteroids"?8:3,wave:1};shots=[];rocks=[];enemyShots=[];enemies=[];particles=[];ship={x:W/2,y:H*.75,vx:0,vy:0,angle:-Math.PI/2,invuln:0};enemyDir=1;enemyFire=1;shootCooldown=0;screenFlash=0;
  $("pauseBtn").disabled=true;$("pauseBtn").textContent="Pause";$("helpText").textContent=game==="asteroids"?"Hold ◀ / ▶ to rotate, THRUST to fly, and FIRE to shoot. Keyboard: ← → ↑ Space.":"Hold ◀ / ▶ to dodge the aliens. Hold FIRE to blast them. Keyboard: ← → and Space.";
  $("launchBar").hidden=false;
  $("quickStartBtn").textContent=game==="galaxy"?"▶ PLAY GALAXY DEFENDER":"▶ PLAY ASTEROID RUN";
@@ -43,7 +43,7 @@ function newRock(size,x,y){
  let pos={x:x??rand(40,W-40),y:y??rand(60,H-60)};
  if(x===undefined){for(let t=0;t<30&&limit2(pos,ship,215+r);t++)pos={x:rand(r,W-r),y:rand(r,H-r)};}
  // Relaxed asteroid movement, with a gentle increase on later waves.
- const a=rand(0,TAU),speed=rand(9,17)+Math.min(8,data.wave-1)*1.5+(3-size)*3;
+ const a=rand(0,TAU),speed=rand(7,13)+Math.min(8,data.wave-1)*1.2+(3-size)*2.5;
  const edges=Array.from({length:11},()=>rand(.72,1.16));
  rocks.push({...pos,size,r,vx:Math.cos(a)*speed,vy:Math.sin(a)*speed,angle:rand(0,TAU),spin:rand(-.38,.38),edges});
 }
@@ -55,8 +55,8 @@ function startGalaxyWave(){
  status("Wave "+data.wave+" — defend the galaxy!");
 }
 function startGame(){
- running=true;paused=false;data={score:0,lives:game==="asteroids"?6:3,wave:1};shots=[];rocks=[];enemyShots=[];particles=[];
- ship={x:W/2,y:H-140,vx:0,vy:0,angle:-Math.PI/2,invuln:game==="asteroids"?6:2};
+ running=true;paused=false;data={score:0,lives:game==="asteroids"?8:3,wave:1};shots=[];rocks=[];enemyShots=[];particles=[];
+ ship={x:W/2,y:H-140,vx:0,vy:0,angle:-Math.PI/2,invuln:game==="asteroids"?9:2};
  shootCooldown=0;screenFlash=0;clearControls();$("pauseBtn").disabled=false;$("pauseBtn").textContent="Pause";
  if(game==="asteroids")startAsteroidsWave();else startGalaxyWave();
  $("launchBar").hidden=true;
@@ -78,7 +78,7 @@ function loseLife(){
  if(ship.invuln>0||!running)return;
  data.lives--;screenFlash=.35;burst(ship.x,ship.y,"#ff7d9d",27,210);sound(165,.3,"triangle",.05);updateHUD();
  if(data.lives<=0){endGame();return;}
- ship.x=W/2;ship.y=game==="asteroids"?H*.73:H-140;ship.vx=0;ship.vy=0;ship.invuln=game==="asteroids"?5:2.6;status(data.lives+" lives left — keep fighting!");
+ ship.x=W/2;ship.y=game==="asteroids"?H*.73:H-140;ship.vx=0;ship.vy=0;ship.invuln=game==="asteroids"?8:2.6;status(data.lives+" lives left — keep fighting!");
 }
 function fire(){
  if(!running||paused||shootCooldown>0)return;
@@ -94,7 +94,7 @@ function updateAsteroids(dt){
  if(keys.thrust){ship.vx+=Math.cos(ship.angle)*105*dt;ship.vy+=Math.sin(ship.angle)*105*dt;if(Math.random()<.55)burst(ship.x-Math.cos(ship.angle)*19,ship.y-Math.sin(ship.angle)*19,"#51efff",1,70);}
  const drag=Math.pow(.974,dt*60);ship.vx*=drag;ship.vy*=drag;const v=Math.hypot(ship.vx,ship.vy);if(v>130){ship.vx*=130/v;ship.vy*=130/v;}
  ship.x=(ship.x+ship.vx*dt+W)%W;ship.y=(ship.y+ship.vy*dt+H)%H;
- for(const r of rocks){r.x=(r.x+r.vx*dt+W+r.r)%(W+2*r.r)-r.r;r.y=(r.y+r.vy*dt+H+r.r)%(H+2*r.r)-r.r;r.angle+=r.spin*dt;if(ship.invuln<=0&&limit2(ship,r,r.r+15))loseLife();}
+ for(const r of rocks){r.x=(r.x+r.vx*dt+W+r.r)%(W+2*r.r)-r.r;r.y=(r.y+r.vy*dt+H+r.r)%(H+2*r.r)-r.r;r.angle+=r.spin*dt;if(ship.invuln<=0&&limit2(ship,r,r.r*.72+12))loseLife();}
  for(let i=shots.length-1;i>=0;i--){
    const b=shots[i];b.x+=b.vx*dt;b.y+=b.vy*dt;b.ttl-=dt;
    if(b.ttl<=0||b.x<0||b.x>W||b.y<0||b.y>H){shots.splice(i,1);continue;}
@@ -103,7 +103,7 @@ function updateAsteroids(dt){
    const r=rocks.splice(hit,1)[0];shots.splice(i,1);score(r.size===3?25:r.size===2?60:115);burst(r.x,r.y,r.size===1?"#ffe590":"#8bdeff",r.size===3?14:9,170);sound(140+60*r.size,.1,"sawtooth",.018);
    if(r.size>1)for(let j=0;j<2;j++)newRock(r.size-1,r.x+rand(-10,10),r.y+rand(-10,10));
  }
- if(running&&rocks.length===0){data.wave++;if(data.wave%2===1&&data.lives<8){data.lives++;status("Bonus life awarded!");}updateHUD();startAsteroidsWave();ship.invuln=Math.max(ship.invuln,3);sound(1100,.18);}
+ if(running&&rocks.length===0){data.wave++;if(data.wave%2===1&&data.lives<10){data.lives++;status("Bonus life awarded!");}updateHUD();startAsteroidsWave();ship.invuln=Math.max(ship.invuln,3);sound(1100,.18);}
 }
 function updateGalaxy(dt){
  if(keys.left)ship.x-=460*dt;if(keys.right)ship.x+=460*dt;ship.x=clamp(ship.x,32,W-32);
