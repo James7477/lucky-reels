@@ -1,0 +1,22 @@
+name: Check Lucky Reels Play-Credit Loans
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'tests/loan-check.mjs'
+      - '.github/workflows/loan-check.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  loan-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out Lucky Reels
+        uses: actions/checkout@v4
+      - name: Verify loan limits, repayment math and casino integration
+        run: node tests/loan-check.mjs
