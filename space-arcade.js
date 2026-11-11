@@ -41,11 +41,12 @@ function newRock(size,x,y){
  const r=size===3?65:size===2?39:21;
  let pos={x:x??rand(40,W-40),y:y??rand(60,H-60)};
  if(x===undefined){for(let t=0;t<30&&limit2(pos,ship,215+r);t++)pos={x:rand(r,W-r),y:rand(r,H-r)};}
- const a=rand(0,TAU),speed=rand(34,66)+data.wave*7+(3-size)*15;
+ // Relaxed asteroid movement, with a gentle increase on later waves.
+ const a=rand(0,TAU),speed=rand(19,36)+Math.min(9,data.wave)*3.5+(3-size)*7;
  const edges=Array.from({length:11},()=>rand(.72,1.16));
  rocks.push({...pos,size,r,vx:Math.cos(a)*speed,vy:Math.sin(a)*speed,angle:rand(0,TAU),spin:rand(-1,1),edges});
 }
-function startAsteroidsWave(){for(let n=0;n<Math.min(11,3+data.wave);n++)newRock(3);status("Wave "+data.wave+" — blast every asteroid!");}
+function startAsteroidsWave(){for(let n=0;n<Math.min(8,2+data.wave);n++)newRock(3);status("Wave "+data.wave+" — relaxed pace. Blast every asteroid!");}
 function startGalaxyWave(){
  enemies=[];enemyShots=[];shots=[];enemyDir=1;enemyFire=1.1;
  const cols=7,rows=4,dx=82,dy=67,offset=(W-(cols-1)*dx)/2;
@@ -54,7 +55,7 @@ function startGalaxyWave(){
 }
 function startGame(){
  running=true;paused=false;data={score:0,lives:3,wave:1};shots=[];rocks=[];enemyShots=[];particles=[];
- ship={x:W/2,y:H-140,vx:0,vy:0,angle:-Math.PI/2,invuln:2};
+ ship={x:W/2,y:H-140,vx:0,vy:0,angle:-Math.PI/2,invuln:game==="asteroids"?3.5:2};
  shootCooldown=0;screenFlash=0;clearControls();$("pauseBtn").disabled=false;$("pauseBtn").textContent="Pause";
  if(game==="asteroids")startAsteroidsWave();else startGalaxyWave();
  $("launchBar").hidden=true;
@@ -79,17 +80,17 @@ function loseLife(){
 }
 function fire(){
  if(!running||paused||shootCooldown>0)return;
- shootCooldown=game==="asteroids"?.16:.21;
+ shootCooldown=game==="asteroids"?.20:.21;
  if(game==="asteroids"){
    const fx=Math.cos(ship.angle),fy=Math.sin(ship.angle);
-   shots.push({x:ship.x+fx*25,y:ship.y+fy*25,vx:fx*650+ship.vx*.4,vy:fy*650+ship.vy*.4,ttl:.85,r:4});
+   shots.push({x:ship.x+fx*25,y:ship.y+fy*25,vx:fx*500+ship.vx*.4,vy:fy*500+ship.vy*.4,ttl:1.25,r:4});
  }else shots.push({x:ship.x,y:ship.y-27,vx:0,vy:-810,ttl:1.5,r:5});
  sound(game==="asteroids"?650:930,.048,"square",.018);
 }
 function updateAsteroids(dt){
- if(keys.left)ship.angle-=4.1*dt;if(keys.right)ship.angle+=4.1*dt;
- if(keys.thrust){ship.vx+=Math.cos(ship.angle)*365*dt;ship.vy+=Math.sin(ship.angle)*365*dt;if(Math.random()<.55)burst(ship.x-Math.cos(ship.angle)*19,ship.y-Math.sin(ship.angle)*19,"#51efff",1,70);}
- const drag=Math.pow(.989,dt*60);ship.vx*=drag;ship.vy*=drag;const v=Math.hypot(ship.vx,ship.vy);if(v>430){ship.vx*=430/v;ship.vy*=430/v;}
+ if(keys.left)ship.angle-=2.3*dt;if(keys.right)ship.angle+=2.3*dt;
+ if(keys.thrust){ship.vx+=Math.cos(ship.angle)*180*dt;ship.vy+=Math.sin(ship.angle)*180*dt;if(Math.random()<.55)burst(ship.x-Math.cos(ship.angle)*19,ship.y-Math.sin(ship.angle)*19,"#51efff",1,70);}
+ const drag=Math.pow(.978,dt*60);ship.vx*=drag;ship.vy*=drag;const v=Math.hypot(ship.vx,ship.vy);if(v>205){ship.vx*=205/v;ship.vy*=205/v;}
  ship.x=(ship.x+ship.vx*dt+W)%W;ship.y=(ship.y+ship.vy*dt+H)%H;
  for(const r of rocks){r.x=(r.x+r.vx*dt+W+r.r)%(W+2*r.r)-r.r;r.y=(r.y+r.vy*dt+H+r.r)%(H+2*r.r)-r.r;r.angle+=r.spin*dt;if(ship.invuln<=0&&limit2(ship,r,r.r+15))loseLife();}
  for(let i=shots.length-1;i>=0;i--){
