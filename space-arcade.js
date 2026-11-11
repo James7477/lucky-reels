@@ -18,7 +18,7 @@ function clearControls(){for(const k in keys)keys[k]=false;document.querySelecto
 function status(s){$("status").textContent=s;}
 function score(n){data.score+=n;if(data.score>highScores[game]){highScores[game]=data.score;save();}$("score").textContent=data.score.toLocaleString("en-US");$("best").textContent=highScores[game].toLocaleString("en-US");}
 function updateHUD(){$("score").textContent=(data.score||0).toLocaleString("en-US");$("best").textContent=highScores[game].toLocaleString("en-US");$("lives").textContent="♥ ".repeat(data.lives||0).trim()||"—";$("wave").textContent=String(data.wave||1);}
-function overlay(icon,title,text,button){$("overlayIcon").textContent=icon;$("overlayTitle").textContent=title;$("overlayText").textContent=text;$("startBtn").textContent=button;$("overlay").hidden=false;}
+function overlay(icon,title,text,button,offerRestart=false){$("overlayIcon").textContent=icon;$("overlayTitle").textContent=title;$("overlayText").textContent=text;$("startBtn").textContent=button;$("newGameBtn").hidden=!offerRestart;$("overlay").hidden=false;}
 function hideOverlay(){$("overlay").hidden=true;}
 function resetWorld(){
  document.body.classList.remove("game-active");
@@ -65,8 +65,19 @@ function startGame(){
 }
 function endGame(){
  running=false;paused=false;clearControls();$("pauseBtn").disabled=true;updateHUD();sound(170,.45,"sawtooth",.03);
- $("launchBar").hidden=false;$("quickStartBtn").textContent="↻ PLAY AGAIN";
- overlay("🏁","MISSION OVER","You scored "+data.score.toLocaleString("en-US")+" points across "+data.wave+" wave(s). Best: "+highScores[game].toLocaleString("en-US")+".","↻ PLAY AGAIN");status("Game over — go for a new high score!");
+ const canContinue=game==="asteroids";
+ $("launchBar").hidden=false;$("quickStartBtn").textContent=canContinue?"▶ CONTINUE GAME":"↻ PLAY AGAIN";
+ overlay("🏁",canContinue?"SHIP DOWN — KEEP PLAYING!":"MISSION OVER","You scored "+data.score.toLocaleString("en-US")+" points across "+data.wave+" wave(s). Best: "+highScores[game].toLocaleString("en-US")+(canContinue?". Continue with five fresh lives and keep your score, or start a new game.":"."),canContinue?"▶ CONTINUE GAME":"↻ PLAY AGAIN",canContinue);
+ status(canContinue?"Continue available — your score and wave are saved in this run.":"Game over — go for a new high score!");
+}
+function continueAsteroids(){
+ if(game!=="asteroids"||running||data.lives>0){startGame();return;}
+ data.lives=5;running=true;paused=false;shots=[];particles=[];screenFlash=0;shootCooldown=0;clearControls();
+ const [x,y]=safeAsteroidSpawn();ship.x=x;ship.y=y;ship.vx=0;ship.vy=0;ship.angle=-Math.PI/2;ship.invuln=9;
+ if(rocks.length===0)startAsteroidsWave();
+ $("pauseBtn").disabled=false;$("pauseBtn").textContent="Pause";
+ $("launchBar").hidden=true;document.body.classList.add("game-active");
+ updateHUD();hideOverlay();canvas.focus({preventScroll:true});last=performance.now();status("Back in action — score and wave preserved!");sound(850,.15);
 }
 function pauseGame(){
  if(!running)return;paused=true;clearControls();$("pauseBtn").textContent="Resume";
@@ -202,8 +213,10 @@ document.querySelectorAll(".ctrl").forEach(bindControl);
 const keyMap={ArrowLeft:"left",KeyA:"left",ArrowRight:"right",KeyD:"right",ArrowUp:"thrust",KeyW:"thrust",Space:"fire",KeyJ:"fire"};
 document.addEventListener("keydown",e=>{const name=keyMap[e.code];if(!name)return;if(["BUTTON","INPUT"].includes(document.activeElement?.tagName))return;e.preventDefault();if(!running||paused)return;keys[name]=true;if(name==="fire"&&!e.repeat)fire();});
 document.addEventListener("keyup",e=>{const name=keyMap[e.code];if(!name)return;keys[name]=false;});
-$("startBtn").addEventListener("click",()=>{if(running&&paused)resumeGame();else startGame();});
-$("quickStartBtn").addEventListener("click",()=>{if(running&&paused)resumeGame();else startGame();});
+function startOrContinue(){if(running&&paused)resumeGame();else if(game==="asteroids"&&!running&&data.lives===0)continueAsteroids();else startGame();}
+$("startBtn").addEventListener("click",startOrContinue);
+$("quickStartBtn").addEventListener("click",startOrContinue);
+$("newGameBtn").addEventListener("click",startGame);
 $("menuBtn").addEventListener("click",()=>{resetWorld();if(typeof window.scrollTo==="function")window.scrollTo(0,0);});
 $("pauseBtn").addEventListener("click",()=>{if(!running)return;if(paused)resumeGame();else pauseGame();});
 $("asteroidsMode").addEventListener("click",()=>setGame("asteroids"));
