@@ -7,8 +7,8 @@
 <meta name="description" content="Two free retro space shooters in Lucky Reels Arcade: Asteroid Run and Galaxy Defender.">
 <title>Space Arcade — Lucky Reels</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚀</text></svg>">
-<link rel="stylesheet" href="space-arcade.css?v=1.1">
-<script src="space-arcade.js?v=1.1" defer></script>
+<link rel="stylesheet" href="space-arcade.css?v=1.2">
+<script src="space-arcade.js?v=1.2" defer></script>
 </head>
 <body>
 <div class="shell">
@@ -17,6 +17,7 @@
 <div class="identity"><span>🚀</span><div><small>LUCKY REELS</small><strong>SPACE ARCADE</strong></div></div>
 <button id="soundBtn" class="sound" type="button" aria-label="Mute game sound" aria-pressed="true">🔊</button>
 </header>
+<div class="launch-bar" id="launchBar"><button id="quickStartBtn" class="primary quick-start" type="button">▶ START SPACE GAME</button></div>
 <section class="hero">
 <div class="eyebrow">RETRO SPACE MISSIONS · FREE PLAY</div>
 <h1>Blast into <em>the arcade.</em></h1>
@@ -25,7 +26,6 @@
 <button id="asteroidsMode" class="mode active" type="button" aria-pressed="true"><span>☄️</span><div><strong>Asteroid Run</strong><small>Fly • Dodge • Blast</small></div></button>
 <button id="galaxyMode" class="mode" type="button" aria-pressed="false"><span>👾</span><div><strong>Galaxy Defender</strong><small>Alien waves • Space battles</small></div></button>
 </div>
-<button id="quickStartBtn" class="primary quick-start" type="button">▶ START SPACE GAME</button>
 </section>
 <section class="game" id="gameArea">
 <div class="score-row" aria-live="polite">
