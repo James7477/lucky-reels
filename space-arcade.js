@@ -23,6 +23,7 @@ function hideOverlay(){$("overlay").hidden=true;}
 function resetWorld(){
  running=false;paused=false;clearControls();data={score:0,lives:3,wave:1};shots=[];rocks=[];enemyShots=[];enemies=[];particles=[];ship={x:W/2,y:H*.75,vx:0,vy:0,angle:-Math.PI/2,invuln:0};enemyDir=1;enemyFire=1;shootCooldown=0;screenFlash=0;
  $("pauseBtn").disabled=true;$("pauseBtn").textContent="Pause";$("helpText").textContent=game==="asteroids"?"Hold ◀ / ▶ to rotate, THRUST to fly, and FIRE to shoot. Keyboard: ← → ↑ Space.":"Hold ◀ / ▶ to dodge the aliens. Hold FIRE to blast them. Keyboard: ← → and Space.";
+ $("launchBar").hidden=false;
  $("quickStartBtn").textContent=game==="galaxy"?"▶ PLAY GALAXY DEFENDER":"▶ PLAY ASTEROID RUN";
  $("thrustBtn").hidden=game==="galaxy";
  document.querySelector(".controls").classList.toggle("galaxy-controls",game==="galaxy");
@@ -56,17 +57,20 @@ function startGame(){
  ship={x:W/2,y:H-140,vx:0,vy:0,angle:-Math.PI/2,invuln:2};
  shootCooldown=0;screenFlash=0;clearControls();$("pauseBtn").disabled=false;$("pauseBtn").textContent="Pause";
  if(game==="asteroids")startAsteroidsWave();else startGalaxyWave();
+ $("launchBar").hidden=true;
  updateHUD();hideOverlay();canvas.focus({preventScroll:true});sound(750,.19,"sawtooth",.013);
 }
 function endGame(){
  running=false;paused=false;clearControls();$("pauseBtn").disabled=true;updateHUD();sound(170,.45,"sawtooth",.03);
+ $("launchBar").hidden=false;$("quickStartBtn").textContent="↻ PLAY AGAIN";
  overlay("🏁","MISSION OVER","You scored "+data.score.toLocaleString("en-US")+" points across "+data.wave+" wave(s). Best: "+highScores[game].toLocaleString("en-US")+".","↻ PLAY AGAIN");status("Game over — go for a new high score!");
 }
 function pauseGame(){
  if(!running)return;paused=true;clearControls();$("pauseBtn").textContent="Resume";
+ $("launchBar").hidden=false;$("quickStartBtn").textContent="▶ RESUME GAME";
  overlay("⏸️","PAUSED","Your mission is paused. Resume whenever you're ready.","▶ RESUME GAME");status("Paused");
 }
-function resumeGame(){paused=false;last=performance.now();$("pauseBtn").textContent="Pause";hideOverlay();canvas.focus({preventScroll:true});status("Mission resumed!");}
+function resumeGame(){paused=false;$("launchBar").hidden=true;last=performance.now();$("pauseBtn").textContent="Pause";hideOverlay();canvas.focus({preventScroll:true});status("Mission resumed!");}
 function loseLife(){
  if(ship.invuln>0||!running)return;
  data.lives--;screenFlash=.35;burst(ship.x,ship.y,"#ff7d9d",27,210);sound(165,.3,"triangle",.05);updateHUD();
@@ -189,8 +193,6 @@ window.addEventListener("blur",()=>{if(running&&!paused)pauseGame();});
 window.addEventListener("pagehide",()=>{cancelAnimationFrame(raf);clearControls();save();});
 stars=Array.from({length:125},()=>({x:rand(0,W),y:rand(0,H),size:rand(.8,3),speed:rand(.2,1.8)}));
 $("soundBtn").textContent=soundOn?"🔊":"🔇";$("soundBtn").setAttribute("aria-pressed",String(soundOn));
-const incomingGame=new URLSearchParams(location.search).get("game");
 setGame(new URLSearchParams(location.search).get("game")==="galaxy"?"galaxy":"asteroids");
-window.addEventListener("load",()=>{if(incomingGame==="galaxy"||incomingGame==="asteroids")$("gameArea").scrollIntoView({block:"start",behavior:"auto"});});
 last=performance.now();raf=requestAnimationFrame(loop);
 })();
