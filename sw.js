@@ -4,15 +4,18 @@
    That keeps deploys instant (this project has been bitten by stale cached
    scripts before) while still letting an installed copy open offline. Bump
    CACHE_VERSION to force every client onto a fresh copy.
+
+   Sites serves the pages at extensionless URLs ("/skill-arcade") and redirects
+   the ".html" form to them, so the offline lookup tries both spellings.
 */
-const CACHE_VERSION = "lucky-reels-v2";
+const CACHE_VERSION = "lucky-reels-v3";
 const OFFLINE_FALLBACK = "/index.html";
 
 const PRECACHE = [
   "/",
   "/index.html",
-  "/skill-arcade.html",
-  "/space-arcade.html",
+  "/skill-arcade",
+  "/space-arcade",
   "/skill-arcade.css",
   "/skill-arcade.js",
   "/space-arcade.css",
@@ -49,6 +52,26 @@ function remember(request, response) {
   caches.open(CACHE_VERSION).then((cache) => cache.put(request, copy)).catch(() => {});
 }
 
+/* Resolve any page the reader asks for while offline, trying each spelling
+   ("/space-arcade", "/space-arcade.html") before falling back to the casino. */
+async function offlineResponse(request) {
+  const path = new URL(request.url).pathname;
+  const candidates = [
+    path,
+    path.replace(/\/index\.html$/, "/"),
+    path.replace(/\.html$/, ""),
+    path.replace(/\.html$/, "") + ".html",
+    OFFLINE_FALLBACK,
+    "/",
+  ];
+
+  for (const candidate of candidates) {
+    const hit = await caches.match(candidate, { ignoreSearch: true });
+    if (hit) return hit;
+  }
+  return Response.error();
+}
+
 self.addEventListener("fetch", (event) => {
   const request = event.request;
   if (request.method !== "GET") return;
@@ -62,12 +85,6 @@ self.addEventListener("fetch", (event) => {
         remember(request, response);
         return response;
       })
-      .catch(() =>
-        // ignoreSearch so "space-arcade.js?v=2.4" is satisfied by the cached file
-        caches
-          .match(request, { ignoreSearch: true })
-          .then((hit) => hit || caches.match(OFFLINE_FALLBACK))
-          .then((hit) => hit || Response.error())
-      )
+      .catch(() => offlineResponse(request))
   );
 });
