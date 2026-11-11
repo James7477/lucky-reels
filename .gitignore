@@ -1,0 +1,14 @@
+# OS / editor clutter
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/
+
+# Local env and logs
+.env
+.env.*
+*.log
+
+# Dependencies (none today, ignored in case tooling is added)
+node_modules/
