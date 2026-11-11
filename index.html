@@ -396,6 +396,34 @@
   .toast.show{transform:translate(-50%,0);opacity:1}
   .flash{position:fixed;inset:0;background:rgba(255,236,180,.85);opacity:0;pointer-events:none;z-index:40;transition:opacity .4s}
   .flash.on{opacity:.3;transition:opacity .05s}
+
+  /* In-game play-credit loan panel: separate from the Skill Arcade */
+  .loan-status[hidden]{display:none!important}
+  .loan-status{display:flex;align-items:center;gap:12px;justify-content:space-between;flex-wrap:wrap;padding:11px 13px;margin:0 0 10px;border-radius:13px;border:1px solid rgba(245,197,66,.33);background:linear-gradient(110deg,rgba(245,197,66,.12),rgba(101,66,158,.16))}
+  .loan-status-info{flex:1;min-width:170px;display:grid;gap:4px}
+  .loan-status strong{color:#ffe294;font-size:13px}
+  .loan-status small{font-size:10px;color:#d9c7e3;line-height:1.4}
+  .loan-meter{height:5px;border-radius:99px;overflow:hidden;background:rgba(0,0,0,.43)}
+  .loan-meter span{display:block;height:100%;width:0%;border-radius:99px;background:linear-gradient(90deg,#48e8b1,#f5c542)}
+  .loan-manage{background:rgba(0,0,0,.22);border:1px solid rgba(245,197,66,.5);border-radius:10px;color:#ffe494;padding:9px 12px;cursor:pointer;font-size:11px;font-weight:800}
+  .loan-dialog{width:min(93vw,510px);max-height:85vh;overflow:auto;padding:0;border:1px solid rgba(245,197,66,.6);border-radius:23px;background:linear-gradient(155deg,#302043,#130c20);color:#f7edf9;box-shadow:0 30px 75px rgba(0,0,0,.75)}
+  .loan-dialog::backdrop{background:rgba(4,2,10,.79);backdrop-filter:blur(5px)}
+  .loan-card{padding:23px;display:grid;gap:14px}
+  .loan-heading{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+  .loan-heading h2{margin:0 0 5px;color:#ffe098;font-size:24px}
+  .loan-heading p{margin:0;color:#cbb9d9;font-size:13px}
+  .loan-close{border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:#fff;border-radius:10px;width:36px;height:36px;flex-shrink:0;cursor:pointer}
+  .loan-rules{background:rgba(0,0,0,.27);border:1px solid rgba(255,255,255,.09);padding:12px;border-radius:12px;color:#e0d0ea;font-size:12px;line-height:1.55}
+  .loan-rules strong{color:#ffe294}
+  .loan-choices{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+  .loan-choice,.loan-pay{cursor:pointer;border:1px solid rgba(245,197,66,.48);background:linear-gradient(160deg,#563766,#33223f);border-radius:12px;padding:13px 4px;color:#ffdf8a;font-size:12px;font-weight:900}
+  .loan-choice:disabled,.loan-pay:disabled{opacity:.28;cursor:not-allowed}
+  .loan-payrow{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+  .loan-pay{font-size:13px}
+  .loan-balance{font-size:17px;color:#ffe29a;font-weight:800}
+  .loan-msg{margin:0;min-height:20px;text-align:center;font-size:12px;color:#80edbd;line-height:1.5}
+  .loan-footnote{margin:0;font-size:11px;line-height:1.5;color:#cdbbdc}
+  @media(max-width:400px){.loan-card{padding:15px}.loan-choices{gap:4px}.loan-choice{padding:10px 1px;font-size:10px}.loan-status{gap:6px}}
 </style>
 </head>
 <body>
@@ -410,10 +438,18 @@
       </div>
       <button class="icon-btn" id="dailyBtn" title="Daily bonus">🎁</button>
       <button class="icon-btn" id="soundBtn" title="Toggle sound">🔊</button>
-      <button class="icon-btn" id="resetBtn" title="Top up to 2,000 credits">↺</button>
+      <button class="icon-btn" id="loanBtn" title="Take a play-credit loan" aria-label="Take a play-credit loan">🏦</button>
       <button class="icon-btn" id="clearBests" title="Clear all best wins">🏆</button>
     </div>
   </header>
+
+  <div class="loan-status" id="loanStatus" hidden aria-live="polite">
+    <div class="loan-status-info"><strong id="loanStatusTitle">🏦 Loan owed: 0 credits</strong>
+      <small>25% of net winnings repays this play-credit loan automatically. 0% interest.</small>
+      <div class="loan-meter" aria-hidden="true"><span id="loanProgress"></span></div>
+    </div>
+    <button class="loan-manage" id="loanManage" type="button">Manage loan</button>
+  </div>
 
   <nav class="tabs" role="tablist">
     <button class="tab active" data-game="slots" role="tab">🎰 Slots</button>
@@ -580,6 +616,30 @@
   </section>
 </div>
 
+<dialog class="loan-dialog" id="loanDialog" aria-labelledby="loanTitle">
+  <div class="loan-card">
+    <div class="loan-heading"><div><h2 id="loanTitle">🏦 Lucky Reels Loan Desk</h2>
+      <p>Extra play credits for another round.</p></div>
+      <button type="button" class="loan-close" id="loanClose" aria-label="Close loan desk">✕</button>
+    </div>
+    <div class="loan-rules"><strong>Play credits only — no real debt or money.</strong> Borrow in increments of <b>2,000</b>, up to <b>10,000 credits owed</b> at one time. You may borrow more while a loan is open if you remain under the cap. <strong>0% interest.</strong> When a game produces a net profit, <strong>25% of that profit</strong> (rounded up) goes toward the balance. Returned bets, losses and daily gifts do not trigger repayment. You can also pay early from your available credits.</div>
+    <div class="loan-balance" id="loanOwed">Outstanding: 0 / 10,000 credits</div>
+    <div id="loanChoices" class="loan-choices" aria-label="Choose loan amount">
+      <button type="button" class="loan-choice" data-loan="2000">+2,000</button>
+      <button type="button" class="loan-choice" data-loan="4000">+4,000</button>
+      <button type="button" class="loan-choice" data-loan="6000">+6,000</button>
+      <button type="button" class="loan-choice" data-loan="8000">+8,000</button>
+      <button type="button" class="loan-choice" data-loan="10000">+10,000</button>
+    </div>
+    <div class="loan-payrow">
+      <button class="loan-pay" id="loanPay2000" type="button">Repay up to 2,000</button>
+      <button class="loan-pay" id="loanPayAll" type="button">Repay all available</button>
+    </div>
+    <p class="loan-msg" id="loanMsg" role="status" aria-live="polite">Your current casino credits and session score remain separate from loans.</p>
+    <p class="loan-footnote">Loans are fictional. No payments, cash prizes, real-world obligations, or purchases. Your loan balance is saved on this device along with your casino progress. Skill Arcade points are separate.</p>
+  </div>
+</dialog>
+
 <div class="toast" id="toast">Jackpot!</div>
 <div class="flash" id="flash"></div>
 
@@ -633,6 +693,7 @@
   const state = {
     credits: Number.isFinite(saved.credits) ? saved.credits : 2000,
     net: Number.isFinite(saved.net) ? saved.net : 0,
+    loanBalance: Number.isFinite(saved.loanBalance) ? Math.max(0,Math.min(10000,Math.floor(saved.loanBalance))) : 0,
     bests: {
       slots: Number(saved.bests && saved.bests.slots) || 0,
       blackjack: Number(saved.bests && saved.bests.blackjack) || 0,
@@ -655,7 +716,7 @@
   const save = () => {
     try {
       localStorage.setItem(SAVE_KEY, JSON.stringify({
-        credits: state.credits, net: state.net, bests: state.bests,
+        credits: state.credits, net: state.net, loanBalance: state.loanBalance, bests: state.bests,
         daily: state.daily,
         sound: state.sound, game: state.game, bets: state.bets
       }));
@@ -726,7 +787,7 @@
   /* ================= shared ui ================= */
   const el = {
     credits: $("credits"), net: $("net"), balance: $("balancePill"),
-    soundBtn: $("soundBtn"), resetBtn: $("resetBtn"), clearBests: $("clearBests"),
+    soundBtn: $("soundBtn"), loanBtn: $("loanBtn"), clearBests: $("clearBests"),
     dailyBtn: $("dailyBtn"), welcome: $("welcome"),
     toast: $("toast"), flash: $("flash")
   };
@@ -741,8 +802,91 @@
       el.balance.classList.add("bump");
     }
     renderWelcome();
+    renderLoan();
     save();
   };
+
+  /* ================= play-credit loan desk ================= */
+  const LOAN_CAP = 10000;
+  const LOAN_STEP = 2000;
+  const LOAN_REPAY_RATE = 0.25;
+  const loanDialog = $("loanDialog");
+
+  const renderLoan = () => {
+    const owed = state.loanBalance;
+    $("loanStatus").hidden = owed === 0;
+    $("loanStatusTitle").textContent = "🏦 Loan owed: " + fmt(owed) + " credits";
+    $("loanProgress").style.width = (100 * (LOAN_CAP - owed) / LOAN_CAP) + "%";
+    $("loanOwed").textContent = "Outstanding: " + fmt(owed) + " / " + fmt(LOAN_CAP) + " credits";
+    document.querySelectorAll("[data-loan]").forEach(btn => {
+      const amount = Number(btn.dataset.loan);
+      btn.disabled = amount > LOAN_CAP - owed;
+      btn.title = btn.disabled ? "This would exceed the 10,000-credit cap" : "Borrow " + fmt(amount) + " play credits";
+    });
+    const repayable = Math.min(owed, Math.floor(Math.max(0,state.credits)));
+    $("loanPay2000").disabled = repayable === 0;
+    $("loanPayAll").disabled = repayable === 0;
+    $("loanPay2000").textContent = "Repay " + fmt(Math.min(LOAN_STEP,repayable));
+    $("loanPayAll").textContent = "Repay " + fmt(repayable) + " (all available)";
+    el.loanBtn.title = owed > 0 ? "Manage loan — " + fmt(owed) + " credits owed" : "Take a play-credit loan";
+    el.loanBtn.setAttribute("aria-label",el.loanBtn.title);
+  };
+
+  // Repayment is taken ONLY from a profitable round, not from stake returned
+  // on a push or from free daily credits. Net/session totals stay game-only.
+  const applyLoanRepayment = (grossPayout, totalStake) => {
+    if (state.loanBalance <= 0 || grossPayout <= totalStake) return grossPayout;
+    const profit = Math.max(0,grossPayout - totalStake);
+    const paid = Math.min(state.loanBalance,Math.ceil(profit * LOAN_REPAY_RATE),grossPayout);
+    state.loanBalance -= paid;
+    return grossPayout - paid;
+  };
+
+  const borrowCredits = amount => {
+    if (!Number.isInteger(amount) || amount < LOAN_STEP || amount % LOAN_STEP !== 0 ||
+        state.loanBalance + amount > LOAN_CAP) return false;
+    state.loanBalance += amount;
+    state.credits += amount;
+    updateHeader(true);
+    refreshAll();
+    $("loanMsg").textContent = "✅ Borrowed " + fmt(amount) + " play credits. Total owed: " + fmt(state.loanBalance) + ".";
+    sfx.win();
+    return true;
+  };
+
+  const repayCredits = wanted => {
+    const paid = Math.min(state.loanBalance,Math.floor(Math.max(0,state.credits)),wanted);
+    if (paid <= 0) return 0;
+    state.credits -= paid;
+    state.loanBalance -= paid;
+    updateHeader(true);
+    refreshAll();
+    $("loanMsg").textContent = state.loanBalance === 0
+      ? "🎉 Loan paid in full! No credits owed."
+      : "✅ Repaid " + fmt(paid) + " credits. " + fmt(state.loanBalance) + " still owed.";
+    sfx.click();
+    return paid;
+  };
+
+  const openLoanDesk = () => {
+    renderLoan();
+    $("loanMsg").textContent = state.loanBalance ? "Your current balance is shown above." :
+      "Choose a loan amount in increments of 2,000 credits.";
+    if (typeof loanDialog.showModal === "function") loanDialog.showModal();
+    else loanDialog.setAttribute("open","");
+  };
+  const closeLoanDesk = () => {
+    if (typeof loanDialog.close === "function") loanDialog.close();
+    else loanDialog.removeAttribute("open");
+  };
+  el.loanBtn.addEventListener("click",openLoanDesk);
+  $("loanManage").addEventListener("click",openLoanDesk);
+  $("loanClose").addEventListener("click",closeLoanDesk);
+  document.querySelectorAll("[data-loan]").forEach(btn => btn.addEventListener("click",() => {
+    if (!borrowCredits(Number(btn.dataset.loan))) $("loanMsg").textContent = "Loan limit reached. Repay some credits to borrow again.";
+  }));
+  $("loanPay2000").addEventListener("click",() => repayCredits(LOAN_STEP));
+  $("loanPayAll").addEventListener("click",() => repayCredits(Infinity));
 
   const bestEls = {
     slots: $("sBest"), blackjack: $("bjBest"), poker: $("vpBest"),
@@ -909,7 +1053,7 @@
     }
 
     const total = wins.reduce((sum, w) => sum + w.amount, 0);
-    state.credits += total;
+    state.credits += applyLoanRepayment(total, slots.staked);
     state.net += total;
     recordBest("slots", total - slots.staked);
     wins.forEach((w) => w.line.forEach((i) => slots.cells[i].node.classList.add("win")));
@@ -941,7 +1085,7 @@
   const slotSpin = () => {
     if (slots.spinning) return;
     if (state.credits < slotCost()) {
-      slotSetMessage("Not enough credits — top up with ↺.", "bad");
+      slotSetMessage("Not enough credits — open 🏦 for a play-credit loan.", "bad");
       return;
     }
     slots.spinning = true;
@@ -1074,7 +1218,7 @@
       cls = "bad";
     }
 
-    state.credits += payout;
+    state.credits += applyLoanRepayment(payout, bj.bet);
     state.net += payout;
     recordBest("blackjack", payout - bj.bet);
 
@@ -1108,7 +1252,7 @@
     if (bj.phase === "player" || bj.phase === "dealer") return;
     const bet = state.bets.blackjack;
     if (state.credits < bet) {
-      bjMessage("Not enough credits for that bet — top up with ↺.", "bad");
+      bjMessage("Not enough credits for that bet — open 🏦 for a play-credit loan.", "bad");
       return;
     }
     if (bj.shoe.length < 20) bj.shoe = makeShoe(6);
@@ -1294,7 +1438,7 @@
     if (vp.phase === "draw") return;
     const bet = state.bets.poker;
     if (state.credits < bet) {
-      vpMessage("Not enough credits — top up with ↺.", "bad");
+      vpMessage("Not enough credits — open 🏦 for a play-credit loan.", "bad");
       return;
     }
     if (vp.deck.length < 12) vp.deck = makeShoe(1);
@@ -1321,7 +1465,7 @@
     vp.highlight = result.cards;
 
     const payout = result.mult * vp.bet;
-    state.credits += payout;
+    state.credits += applyLoanRepayment(payout, vp.bet);
     state.net += payout;
     recordBest("poker", payout - vp.bet);
 
@@ -1412,7 +1556,7 @@
       else { text = `Banker wins — ${score}. Player loses.`; cls = "bad"; }
     }
 
-    state.credits += payout;
+    state.credits += applyLoanRepayment(payout, bac.bet);
     state.net += payout;
     recordBest("baccarat", payout - bac.bet);
 
@@ -1464,7 +1608,7 @@
     const { player, banker } = baccaratPlay(bac.shoe);
     const bet = state.bets.baccarat;
     if (state.credits < bet) {
-      bacMessage("Not enough credits — top up with ↺.", "bad");
+      bacMessage("Not enough credits — open 🏦 for a play-credit loan.", "bad");
       return;
     }
     if (bac.shoe.length < 20) bac.shoe = makeShoe(8);
@@ -1626,7 +1770,7 @@
     if (rl.phase !== "bet") return;
     const amount = state.bets.roulette;
     if (state.credits < rlTotalStake() + amount) {
-      rlMessage("Not enough credits for that bet — clear the table or top up with ↺.", "bad");
+      rlMessage("Not enough credits for that bet — clear the table or open 🏦 for a play-credit loan.", "bad");
       return;
     }
     rl.bets[key] = (rl.bets[key] || 0) + amount;
@@ -1662,7 +1806,7 @@
   const rlSettle = (number) => {
     const staked = rlTotalStake();
     const { payout } = roulettePayout(rl.bets, number);
-    state.credits += payout;
+    state.credits += applyLoanRepayment(payout, staked);
     state.net += payout;
     recordBest("roulette", payout - staked);
 
@@ -1698,7 +1842,7 @@
     if (rl.phase !== "bet") return;
     const total = rlTotalStake();
     if (total === 0) { rlMessage("Put some chips on the table first.", "bad"); return; }
-    if (state.credits < total) { rlMessage("Not enough credits — top up with ↺.", "bad"); return; }
+    if (state.credits < total) { rlMessage("Not enough credits — open 🏦 for a play-credit loan.", "bad"); return; }
 
     rl.lastBets = { ...rl.bets };
     state.credits -= total;
@@ -1743,7 +1887,7 @@
     const total = rlLastTotal();
     if (total === 0) return;
     if (state.credits < total) {
-      rlMessage("Not enough credits to repeat that bet — top up with ↺.", "bad");
+      rlMessage("Not enough credits to repeat that bet — open 🏦 for a play-credit loan.", "bad");
       return;
     }
     rl.bets = { ...rl.lastBets };
@@ -1848,34 +1992,6 @@
     if (state.sound) sfx.click();
   });
 
-  el.resetBtn.addEventListener("click", () => {
-    if (bac.phase === "dealing" || rl.phase === "spinning") return;
-    state.credits = 2000;
-    state.net = 0;
-    bj.phase = "bet";
-    bj.player = [];
-    bj.dealer = [];
-    vp.phase = "bet";
-    vp.hand = [];
-    vp.holds = [false,false,false,false,false];
-    vp.highlight = [];
-    slots.spinning = false;
-    slotClearWins();
-    slotSetMessage("Credits topped up to 2,000. Good luck!");
-    bjMessage("Credits topped up. Pick a bet and deal.");
-    vpMessage("Credits topped up. Deal five cards.");
-    bacMessage("Credits topped up. Back a hand and deal.");
-    rl.phase = "bet";
-    rl.bets = {};
-    rl.lastBets = {};
-    rlHistory.length = 0;
-    rlRenderHistory();
-    rlCells.forEach((btn) => btn.classList.remove("hit"));
-    rlMessage("Credits topped up. Place your bets.");
-    refreshAll();
-    updateHeader(true);
-    sfx.win();
-  });
 
   document.addEventListener("keydown", (event) => {
     if (state.game !== "slots") return;
