@@ -2,6 +2,8 @@
 
 A single-page casino game room with five play-money games: **slots**, **roulette**, **blackjack**, **baccarat**, and **video poker**. Everything runs in the browser — no accounts, no payments, no real wagering.
 
+> **Play money only.** The credits in this game have no value, cannot be bought, sold or cashed out, and there is no gambling service here. It is a browser toy for entertainment and code-reading purposes, not a betting product, and it is not affiliated with any casino or gambling operator.
+
 ## Run it
 
 There is no build step and no dependencies. Open `index.html` directly, or serve the folder:
@@ -29,4 +31,4 @@ Deployed with Freebuff Sites: <https://site-92e92b74e1624278b31dd6e22fe42e5a.fre
 
 ## License
 
-No license file is included yet — add one before distributing or accepting contributions.
+MIT — see [LICENSE](LICENSE).
